@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Fix - Secure File System</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .step { background: #f5f5f5; padding: 15px; margin: 10px 0; border-left: 4px solid #007bff; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        #status { margin: 20px 0; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Secure File System - Quick Fix</h1>
+    
+    <div id="status">Initializing...</div>
+    
+    <h2>📋 Step-by-Step Solution:</h2>
+    
+    <div class="step">
+        <h3>Step 1: Clear Authentication Data</h3>
+        <p>Click the button below to clear any old authentication data:</p>
+        <button onclick="clearAuthData()">Clear Auth Data</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Test API Connection</h3>
+        <p>Test if the API server is responding correctly:</p>
+        <button onclick="testAPI()">Test API</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Fresh Login</h3>
+        <p>Get a fresh authentication token:</p>
+        <button onclick="freshLogin()">Fresh Login</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 4: Go to Dashboard</h3>
+        <p>Open the admin dashboard with fresh authentication:</p>
+        <button onclick="goToDashboard()">Open Dashboard</button>
+    </div>
+    
+    <h2>🔍 Manual Steps if Buttons Don't Work:</h2>
+    <ol>
+        <li>Open browser developer tools (F12)</li>
+        <li>Go to Application → Local Storage → http://localhost:8080</li>
+        <li>Delete the 'authToken' entry</li>
+        <li>Close dev tools and refresh the page</li>
+        <li>Login with: admin / admin123</li>
+    </ol>
+
+    <script>
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = isError ? 'error' : 'success';
+            status.style.display = 'block';
+        }
+
+        function clearAuthData() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                updateStatus('✅ Authentication data cleared successfully!');
+            } catch (e) {
+                updateStatus('❌ Error clearing data: ' + e.message, true);
+            }
+        }
+
+        async function testAPI() {
+            try {
+                updateStatus('🔄 Testing API connection...');
+                
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                if (response.ok) {
+                    updateStatus('✅ API server is working correctly!');
+                } else {
+                    updateStatus('❌ API server error: ' + response.status, true);
+                }
+            } catch (e) {
+                updateStatus('❌ Cannot connect to API server: ' + e.message, true);
+            }
+        }
+
+        async function freshLogin() {
+            try {
+                updateStatus('🔄 Getting fresh authentication...');
+                
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('authToken', data.access_token);
+                    updateStatus('✅ Fresh login successful! Token stored.');
+                } else {
+                    updateStatus('❌ Login failed: ' + response.status, true);
+                }
+            } catch (e) {
+                updateStatus('❌ Login error: ' + e.message, true);
+            }
+        }
+
+        function goToDashboard() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                updateStatus('✅ Redirecting to dashboard...');
+                window.location.href = 'http://localhost:8080';
+            } else {
+                updateStatus('❌ No authentication token. Please do fresh login first.', true);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateStatus('🚀 Ready! Follow the steps above to fix the issue.');
+        };
+    </script>
+</body>
+</html>
